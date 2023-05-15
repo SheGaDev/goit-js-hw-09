@@ -3,6 +3,17 @@
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+function styleTimer() {
+    const divTimer = document.querySelector(".timer");
+    divTimer.style.cssText = "display: flex; gap: 10px; margin-top: 10px;"
+    divTimer.querySelectorAll(".field")
+        .forEach(element => {
+            element.querySelector(".value").style.fontSize = '20px';
+            element.style.cssText = `display: flex; 
+            flex-direction: column; 
+            align-items: center;`;
+        })
+}
 class Timer {
     constructor(data = {}) {
         this.buttons = {
@@ -76,6 +87,7 @@ class Timer {
         }
     }
 }
+styleTimer();
 new Timer({
     start: "[data-start]",
     fields: {
