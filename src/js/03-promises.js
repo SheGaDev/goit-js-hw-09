@@ -12,13 +12,13 @@ function createPromise(position, delay) {
     }, delay)
   })
 }
-async function event(e) {
+function event(e) {
   e.preventDefault();
   const data = {};
   for (const [name, value] of Object.entries(e.currentTarget.elements))
-    data[name] = +value.value;
+    data[name] = Number(value.value);
   for (let i = 0; i < data.amount; i++) {
-    createPromise(i, data.delay).then(Notify.success).catch(Notify.failure);
+    createPromise(i + 1, data.delay).then(Notify.success).catch(Notify.failure);
     data.delay += data.step;
   }
   e.currentTarget.reset();

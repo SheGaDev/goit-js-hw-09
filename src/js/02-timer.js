@@ -1,5 +1,3 @@
-// ----   Вибачте за такий код, щось погратись захотілось..
-
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
@@ -38,23 +36,33 @@ class Timer {
         }
     }
     check() {
-        if (!localStorage.getItem('data')) return;
+        const data = Number(localStorage.getItem("data"));
+        if (!data || data < Date.now()) return;
         this.checked = true;
+        this.buttons.start.disabled = true;
         this.show();
         this.interval = setInterval(() => this.show(), 1000);
     }
+    updateTimer(parsed) {
+        for (const [name, value] of Object.entries(this.fields)) {
+            value.textContent = parsed ? this.addLeadingZero(parsed[name]) : "00";
+        }
+    }
     show() {
         const now = Date.now();
-        const data = localStorage.getItem("data")
+        const data = Number(localStorage.getItem("data"));
         const parsed = this.parse(data - now);
-        for (const [name, value] of Object.entries(this.fields))
-            value.textContent = name !== "days" ?
-                this.addLeadingZero(parsed[name]) : parsed[name];
-        if (now + 1000 >= +data) {
-            console.log(now, data)
+        if (now + 1000 >= data) {
             localStorage.removeItem("data")
             clearInterval(this.interval);
         }
+        this.updateTimer(now + 1000 >= data ? null : parsed);
+    }
+    resetTimer() {
+        this.buttons.start.disabled = true;
+        clearInterval(this.interval);
+        localStorage.removeItem("data");
+        this.updateTimer();
     }
     execute(value) {
         this.buttons.start.disabled = true;
@@ -76,12 +84,14 @@ class Timer {
             return;
         }
         const { timer } = this.config;
+        if (localStorage.getItem("data")) return timer.resetTimer();
         timer.buttons.start.disabled = false;
         timer.buttons.start.addEventListener("click", click);
         function click() {
             if (timer.interval) clearInterval(timer.interval)
             const data = selectedDates[0] / 1;
             localStorage.setItem("data", data)
+            timer.buttons.start.disabled = true;
             timer.show()
             timer.interval = setInterval(() => timer.show(), 1000)
         }
